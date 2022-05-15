@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<link rel="stylesheet" href="{{ asset('bootstrap.css') }}">
+		<title>Document</title>
+	</head>
+	<body>
+		<div class="container">
+
+			{% for message in app.session.flashBag.get('info') %}
+				<div class="alert alert-info">
+					{{ message }}
+				</div>
+			{% endfor %}
+			{% for message in app.session.flashBag.get('success') %}
+				<div class="alert alert-success">
+					{{ message }}
+				</div>
+			{% endfor %}
+			{% for message in app.session.flashBag.get('error') %}
+				<div class="alert alert-danger">
+					{{ message }}
+				</div>
+			{% endfor %}
+
+			<h1>Liste des todos :
+			</h1>
+			<ol class="list-group">
+				{% for name,content in app.session.get('todos') %}
+					<li class="list-group-item d-flex justify-content-between align-items-center">
+						<div id="{{'show_'~name}}">
+							{{ name }}
+							:
+							{{ content }}
+						</div>
+						<div id="{{'edit_'~name}}" class="d-none">
+							<form action="/todo/update/" data-name={{name}} method="GET" onsubmit="onSubmit(event)">
+								<div class="input-group">
+									<input type="text" class="form-control" placeholder="Content" value="{{content}}" required>
+									<button class="btn btn-outline-secondary" type="submit">Ok</button>
+								</div>
+							</form>
+						</div>
+						<div>
+							<a id="{{'btn_'~name}}" href="#" onclick="onEdit(event)">Edit
+							</a>
+							|
+							<a href="{{path("todo.delete", {name: name})}}">
+								Delete</a>
+						</div>
+					</li>
+				{% endfor %}
+			</ol>
+			<div class="mt-3 mb-2">Add todo</div>
+			<form action="/todo/add/" method="GET" onsubmit="onAdd(event)">
+				<div class="input-group">
+					<input type="text" id="add_name" class="form-control" placeholder="Name" required>
+					<input type="text" id="add_content" class="form-control" placeholder="Content" required>
+					<button class="btn btn-outline-secondary" type="submit">Add</button>
+				</div>
+			</form>
+		</div>
+		<script>
+			function onEdit(e) {
+document.getElementById(e.target.id.replace("btn", "show")).classList.toggle("d-none");
+document.getElementById(e.target.id.replace("btn", "edit")).classList.toggle("d-none");
+}
+function onSubmit(e) {
+e.preventDefault();
+if (e.target.reportValidity()) {
+e.target.action += e.target.getAttribute("data-name") + "/" + e.target.querySelector("input").value;
+e.target.submit();
+}
+}
+function onAdd(e) {
+e.preventDefault();
+if (e.target.reportValidity()) {
+e.target.action += e.target.querySelector("#add_name").value + "/" + e.target.querySelector("#add_content").value;
+e.target.submit();
+}
+}
+		</script>
+	</body>
+</html>
